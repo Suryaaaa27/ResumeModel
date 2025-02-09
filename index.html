@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Resume Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 130vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button.dark-mode-btn {
+            background: #333;
+        }
+        .resume-output {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+        .dark-mode {
+            background: #333;
+            color: white;
+        }
+        .dark-mode .container {
+            background: #444;
+            color: white;
+        }
+        .dark-mode input, .dark-mode textarea, .dark-mode select {
+            background: #666;
+            color: white;
+        }
+    </style>
+    <script>
+        async function generateResume(event) {
+            event.preventDefault();
+            const formData = new FormData(document.getElementById("resumeForm"));
+            
+            try {
+                const response = await fetch("http://127.0.0.1:5000/generate_resume"
+                    , {
+                    method: "POST",
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error("Failed to generate resume");
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "Resume.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (error) {
+                console.error("Error generating resume:", error);
+            }
+        }
+        
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Resume Generator</h2>
+        <form id="resumeForm" onsubmit="generateResume(event)">
+            <div class="input-group">
+                <label for="profile-pic">Upload Profile Picture:</label>
+                <input type="file" id="profile-pic" name="profile-pic" accept="image/*">
+            </div>
+            <div class="input-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name" required>
+            </div>
+            <div class="input-group">
+                <label for="job">Job Title:</label>
+                <input type="text" id="job" name="job" placeholder="Enter job title" required>
+            </div>
+            <div class="input-group">
+                <label for="experience">Experience:</label>
+                <textarea id="experience" name="experience" placeholder="Describe your experience" required></textarea>
+            </div>
+            <div class="input-group">
+                <label for="education">Education:</label>
+                <textarea id="education" name="education" placeholder="Enter your educational background" required></textarea>
+            </div>
+            <div class="input-group">
+                <label for="skills">Skills:</label>
+                <input type="text" id="skills" name="skills" placeholder="Enter your skills" required>
+            </div>
+            <div class="input-group">
+                <label for="projects">Projects:</label>
+                <textarea id="projects" name="projects" placeholder="Describe your projects" required></textarea>
+            </div>
+            <div class="input-group">
+                <label for="certifications">Certifications:</label>
+                <textarea id="certifications" name="certifications" placeholder="List your certifications" required></textarea>
+            </div>
+            <div class="input-group">
+                <label for="template">Choose Resume Template:</label>
+                <select id="template" name="template">
+                    <option value="modern">Modern</option>
+                    <option value="classic">Classic</option>
+                    <option value="minimalist">Minimalist</option>
+                </select>
+            </div>
+            <button type="submit">Generate Resume</button>
+            <button type="button" onclick="toggleDarkMode()" class="dark-mode-btn">Dark Mode</button>
+        </form>
+    </div>
+</body>
+</html>
